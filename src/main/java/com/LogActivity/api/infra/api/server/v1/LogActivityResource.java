@@ -33,6 +33,7 @@ public class LogActivityResource {
         return activityService.saveUserActivity(activityRequestDto);
     }
 
+    // get mapping
     @GetMapping("/activity")
     public Page<ActivityResponseDto> getActivities(
             @RequestParam Long userId,
