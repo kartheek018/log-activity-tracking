@@ -18,7 +18,6 @@ public class ActivityEntity {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "activity_type")
     private ActivityType activityType;
 
