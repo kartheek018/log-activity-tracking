@@ -31,5 +31,14 @@
                 archiveArtifacts artifacts: 'target/*.jar'
             }
         }
+
+        stage('Docker Deploy') {
+            steps {
+                sh '''
+                    docker compose down
+                    docker compose up --build -d
+                '''
+            }
+        }
      }
  }
