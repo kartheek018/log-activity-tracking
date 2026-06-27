@@ -5,3 +5,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+server:
+  port: ${WEB_PORT:8080}

@@ -3,8 +3,9 @@ spring:
     url: jdbc:postgresql://postgres:5432/postgres
     username: postgres
     password: Sunny@1012
+    driver-class-name: org.postgresql.Driver
 
-    jpa:
-      hibernate:
-        ddl-auto: validate
-      show-sql: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
