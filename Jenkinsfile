@@ -1,20 +1,24 @@
- pipeline {
-    agent{
-        docker{
-            image 'maven:3.9-eclipse-temurin-21'
+pipeline {
+    agent {
+        docker {
+            image 'my-jenkins-agent:latest'
+            args '''
+            -e DOCKER_HOST=tcp://docker:2376
+            -e DOCKER_TLS_VERIFY=1
+            -e DOCKER_CERT_PATH=/certs/client
+            -v /certs/client:/certs/client
+            '''
         }
     }
 
-     stages {
-         stage('mvn build') {
-             steps {
-                 echo 'Hello World'
-                 sh 'mvn -version'
-                 sh 'mvn clean compile'
-             }
-         }
+    stages {
+        stage('Compile') {
+            steps {
+                sh 'mvn clean compile'
+            }
+        }
 
-        stage('Unit Tests') {
+        stage('Test') {
             steps {
                 sh 'mvn test'
             }
@@ -26,7 +30,7 @@
             }
         }
 
-        stage('Archive Artifact') {
+        stage('Archive') {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar'
             }
@@ -35,10 +39,10 @@
         stage('Docker Deploy') {
             steps {
                 sh '''
-                    docker compose down
+                    docker compose down || true
                     docker compose up --build -d
                 '''
             }
         }
-     }
- }
+    }
+}
