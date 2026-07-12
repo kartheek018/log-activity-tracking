@@ -1,24 +1,16 @@
-pipeline {
-    agent {
-        docker {
-            image 'my-jenkins-agent:latest'
-            args '''
-            -e DOCKER_HOST=tcp://docker:2376
-            -e DOCKER_TLS_VERIFY=1
-            -e DOCKER_CERT_PATH=/certs/client
-            -v /certs/client:/certs/client
-            '''
-        }
-    }
+ pipeline {
+    agent any
 
-    stages {
-        stage('Compile') {
-            steps {
-                sh 'mvn clean compile'
-            }
-        }
+     stages {
+         stage('mvn build') {
+             steps {
+                 echo 'Hello World'
+                 sh 'mvn -version'
+                 sh 'mvn clean compile'
+             }
+         }
 
-        stage('Test') {
+        stage('Unit Tests') {
             steps {
                 sh 'mvn test'
             }
@@ -30,19 +22,36 @@ pipeline {
             }
         }
 
-        stage('Archive') {
+        stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar'
             }
         }
-
-        stage('Docker Deploy') {
-            steps {
+        stage('Build docker image'){
+            steps{
                 sh '''
-                    docker compose down || true
-                    docker compose up --build -d
+                    docker build -t kartheek018/activity-api:latest .
                 '''
             }
         }
-    }
-}
+
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )
+                ]) {
+
+                    sh '''
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+                        docker push kartheek018/activity-api:latest
+                    '''
+                }
+            }
+        }
+     }
+ }
